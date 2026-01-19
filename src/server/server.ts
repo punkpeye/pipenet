@@ -10,14 +10,14 @@ import { ClientManager } from './ClientManager.js';
 const log = debug('pipenet:server');
 
 export interface ServerOptions {
-  domain?: string;
+  domains?: string[];
   landing?: string;
   maxTcpSockets?: number;
   secure?: boolean;
 }
 
 export function createServer(opt: ServerOptions = {}): http.Server {
-  const validHosts = opt.domain ? [opt.domain] : undefined;
+  const validHosts = opt.domains && opt.domains.length > 0 ? opt.domains : undefined;
   const myTldjs = tldjs.fromUserSettings({ validHosts });
   const landingPage = opt.landing || 'https://pipenet.dev/';
 

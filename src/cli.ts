@@ -21,7 +21,7 @@ interface ClientOptions {
 }
 
 interface ServerOptions {
-  domain?: string;
+  domains?: string[];
   landing?: string;
   'max-sockets'?: number;
   port: number;
@@ -76,7 +76,7 @@ async function runClient(opts: ClientOptions) {
 
 function runServer(opts: ServerOptions) {
   const server = createServer({
-    domain: opts.domain,
+    domains: opts.domains,
     landing: opts.landing,
     maxTcpSockets: opts['max-sockets'],
     secure: opts.secure,
@@ -84,8 +84,8 @@ function runServer(opts: ServerOptions) {
 
   server.listen(opts.port, () => {
     console.log('pipenet server listening on port %d', opts.port);
-    if (opts.domain) {
-      console.log('tunnel domain: %s', opts.domain);
+    if (opts.domains && opts.domains.length > 0) {
+      console.log('tunnel domain(s): %s', opts.domains.join(', '));
     }
   });
 
@@ -176,9 +176,10 @@ yargs(hideBin(process.argv))
           describe: 'Port for the server to listen on',
           type: 'number',
         })
-        .option('domain', {
+        .option('domains', {
           alias: 'd',
-          describe: 'Custom domain for the tunnel server',
+          array: true,
+          describe: 'Custom domain(s) for the tunnel server (can be specified multiple times)',
           type: 'string',
         })
         .option('secure', {

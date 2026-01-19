@@ -88,6 +88,12 @@ This package includes both the client and server components. You can run your ow
 # Using the CLI
 npx pipenet server --port 3000
 
+# With a custom domain
+npx pipenet server --port 3000 --domains tunnel.example.com
+
+# With multiple domains
+npx pipenet server --port 3000 --domains tunnel.example.com --domains tunnel.example.org
+
 # Or programmatically
 ```
 
@@ -95,10 +101,10 @@ npx pipenet server --port 3000
 import { createServer } from 'pipenet/server';
 
 const server = createServer({
-  domain: 'tunnel.example.com',  // Optional: custom domain
-  secure: false,                  // Optional: require HTTPS
-  landing: 'https://pipenet.dev', // Optional: landing page URL
-  maxTcpSockets: 10,            // Optional: max sockets per client
+  domains: ['tunnel.example.com'],  // Optional: custom domain(s)
+  secure: false,                     // Optional: require HTTPS
+  landing: 'https://pipenet.dev',    // Optional: landing page URL
+  maxTcpSockets: 10,                 // Optional: max sockets per client
 });
 
 server.listen(3000, () => {
@@ -108,7 +114,7 @@ server.listen(3000, () => {
 
 ### Server Options
 
-- `domain` (string) Custom domain for the tunnel server
+- `domains` (string[]) Custom domain(s) for the tunnel server.
 - `secure` (boolean) Require HTTPS connections
 - `landing` (string) URL to redirect root requests to
 - `maxTcpSockets` (number) Maximum number of TCP sockets per client (default: 10)
