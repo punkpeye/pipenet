@@ -4,7 +4,7 @@ import axios from 'axios';
 import http from 'http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import pipenet from './pipenet.js';
+import { pipenet } from './pipenet.js';
 import { createServer } from './server/server.js';
 
 describe('pipenet', () => {

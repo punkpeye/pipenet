@@ -3,7 +3,7 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import pipenet from './pipenet.js';
+import { pipenet } from './pipenet.js';
 import { createServer } from './server/index.js';
 
 interface ClientOptions {

@@ -35,5 +35,5 @@ function pipenet(
   );
 }
 
-export default pipenet;
+export { pipenet };
 
