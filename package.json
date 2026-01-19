@@ -15,6 +15,10 @@
       "import": "./dist/server/index.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/punkpeye/pipenet.git"
+  },
   "bin": {
     "pipenet": "./dist/cli.js"
   },
