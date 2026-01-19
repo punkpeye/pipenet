@@ -1,6 +1,6 @@
 {
   "name": "pipenet",
-  "description": "Expose localhost to the world",
+  "description": "Expose your local server to the public internet instantly",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/pipenet.js",

@@ -113,8 +113,8 @@ yargs(hideBin(process.argv))
         .option('host', {
           alias: 'h',
           describe: 'Upstream server providing forwarding',
-          default: 'https://pipenet.me',
           type: 'string',
+          default: 'https://pipenet.dev',
         })
         .option('subdomain', {
           alias: 's',

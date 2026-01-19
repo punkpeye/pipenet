@@ -59,7 +59,7 @@ export class Tunnel extends EventEmitter {
     this.opts = opts;
     this.closed = false;
     if (!this.opts.host) {
-      this.opts.host = 'https://pipenet.me';
+      this.opts.host = 'https://pipenet.dev';
     }
   }
 

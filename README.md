@@ -1,6 +1,6 @@
 # pipenet
 
-pipenet exposes your localhost to the world for easy testing and sharing! No need to mess with DNS or deploy just to have others test out your changes.
+Expose your local server to the public internet instantly
 
 ## Installation
 
@@ -21,10 +21,13 @@ Creates a new pipenet tunnel to the specified local `port`. Will return a Promis
 ```js
 import pipenet from 'pipenet';
 
-const tunnel = await pipenet({ port: 3000 });
+const tunnel = await pipenet({
+  port: 3000,
+  host: 'https://pipenet.dev'
+});
 
 // the assigned public url for your tunnel
-// i.e. https://abcdefgjhij.pipenet.me
+// i.e. https://abcdefgjhij.pipenet.dev
 tunnel.url;
 
 tunnel.on('close', () => {
@@ -35,8 +38,8 @@ tunnel.on('close', () => {
 #### options
 
 - `port` (number) [required] The local port number to expose through pipenet.
+- `host` (string) URL for the upstream proxy server. Defaults to `https://pipenet.dev`.
 - `subdomain` (string) Request a specific subdomain on the proxy server. **Note** You may not actually receive this name depending on availability.
-- `host` (string) URL for the upstream proxy server. Defaults to `https://pipenet.me`.
 - `local_host` (string) Proxy to this hostname instead of `localhost`. This will also cause the `Host` header to be re-written to this value in proxied requests.
 - `local_https` (boolean) Enable tunneling to local HTTPS server.
 - `local_cert` (string) Path to certificate PEM file for local HTTPS server.
