@@ -15,7 +15,7 @@ describe('Server', () => {
   it('should redirect root requests to landing page', async () => {
     const server = createServer();
     const res = await request(server).get('/');
-    expect(res.headers.location).toBe('https://pipenet.glama.ai/');
+    expect(res.headers.location).toBe('https://pipenet.dev/');
   });
 
   it('should support custom base domains', async () => {
@@ -24,7 +24,7 @@ describe('Server', () => {
     });
 
     const res = await request(server).get('/');
-    expect(res.headers.location).toBe('https://pipenet.glama.ai/');
+    expect(res.headers.location).toBe('https://pipenet.dev/');
   });
 
   it('reject long domain name requests', async () => {
