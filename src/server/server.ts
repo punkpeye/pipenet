@@ -12,7 +12,7 @@ const log = debug('pipenet:server');
 export interface ServerOptions {
   domain?: string;
   landing?: string;
-  max_tcp_sockets?: number;
+  maxTcpSockets?: number;
   secure?: boolean;
 }
 
@@ -64,7 +64,7 @@ export function createServer(opt: ServerOptions = {}): http.Server {
 
     const stats = client.stats();
     ctx.body = {
-      connected_sockets: stats.connectedSockets,
+      connectedSockets: stats.connectedSockets,
     };
   });
 

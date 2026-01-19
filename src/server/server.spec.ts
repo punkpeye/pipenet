@@ -113,7 +113,7 @@ describe('Server', () => {
       const res = await request(server).get('/api/tunnels/foobar-test/status');
       expect(res.statusCode).toBe(200);
       expect(res.body).toEqual({
-        connected_sockets: 0,
+        connectedSockets: 0,
       });
     }
 

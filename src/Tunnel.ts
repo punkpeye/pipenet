@@ -7,42 +7,42 @@ import { TunnelCluster, TunnelClusterOptions } from './TunnelCluster.js';
 const log = debug('pipenet:client');
 
 export interface TunnelOptions {
-  allow_invalid_cert?: boolean;
+  allowInvalidCert?: boolean;
   headers?: Record<string, string>;
   host?: string;
-  local_ca?: string;
-  local_cert?: string;
-  local_host?: string;
-  local_https?: boolean;
-  local_key?: string;
+  localCa?: string;
+  localCert?: string;
+  localHost?: string;
+  localHttps?: boolean;
+  localKey?: string;
   port?: number;
   subdomain?: string;
 }
 
 interface ServerResponse {
-  cached_url?: string;
+  cachedUrl?: string;
   id: string;
   ip: string;
-  max_conn_count?: number;
+  maxConnCount?: number;
   message?: string;
   port: number;
   url: string;
 }
 
 interface TunnelInfo extends TunnelClusterOptions {
-  allow_invalid_cert?: boolean;
-  cached_url?: string;
-  local_ca?: string;
-  local_cert?: string;
-  local_host?: string;
-  local_https?: boolean;
-  local_key?: string;
-  local_port?: number;
-  max_conn: number;
+  allowInvalidCert?: boolean;
+  cachedUrl?: string;
+  localCa?: string;
+  localCert?: string;
+  localHost?: string;
+  localHttps?: boolean;
+  localKey?: string;
+  localPort?: number;
+  maxConn: number;
   name: string;
-  remote_host: string;
-  remote_ip: string;
-  remote_port: number;
+  remoteHost: string;
+  remoteIp: string;
+  remotePort: number;
   url: string;
 }
 
@@ -78,8 +78,8 @@ export class Tunnel extends EventEmitter {
       this.clientId = info!.name;
       this.url = info!.url;
 
-      if (info!.cached_url) {
-        this.cachedUrl = info!.cached_url;
+      if (info!.cachedUrl) {
+        this.cachedUrl = info!.cachedUrl;
       }
 
       this._establish(info!);
@@ -88,7 +88,7 @@ export class Tunnel extends EventEmitter {
   }
 
   private _establish(info: TunnelInfo): void {
-    this.setMaxListeners(info.max_conn + (EventEmitter.defaultMaxListeners || 10));
+    this.setMaxListeners(info.maxConn + (EventEmitter.defaultMaxListeners || 10));
 
     this.tunnelCluster = new TunnelCluster(info);
 
@@ -135,30 +135,30 @@ export class Tunnel extends EventEmitter {
       this.emit('request', req);
     });
 
-    for (let count = 0; count < info.max_conn; ++count) {
+    for (let count = 0; count < info.maxConn; ++count) {
       this.tunnelCluster.open();
     }
   }
 
   private _getInfo(body: ServerResponse): TunnelInfo {
-    const { cached_url, id, ip, max_conn_count, port, url } = body;
-    const { host, local_host, port: local_port } = this.opts;
-    const { allow_invalid_cert, local_ca, local_cert, local_https, local_key } = this.opts;
-    
+    const { cachedUrl, id, ip, maxConnCount, port, url } = body;
+    const { host, localHost, port: localPort } = this.opts;
+    const { allowInvalidCert, localCa, localCert, localHttps, localKey } = this.opts;
+
     return {
-      allow_invalid_cert,
-      cached_url,
-      local_ca,
-      local_cert,
-      local_host,
-      local_https,
-      local_key,
-      local_port,
-      max_conn: max_conn_count || 1,
+      allowInvalidCert,
+      cachedUrl,
+      localCa,
+      localCert,
+      localHost,
+      localHttps,
+      localKey,
+      localPort,
+      maxConn: maxConnCount || 1,
       name: id,
-      remote_host: new URL(host!).hostname,
-      remote_ip: ip,
-      remote_port: port,
+      remoteHost: new URL(host!).hostname,
+      remoteIp: ip,
+      remotePort: port,
       url,
     };
   }

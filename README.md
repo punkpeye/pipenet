@@ -53,12 +53,12 @@ tunnel.on('close', () => {
 - `port` (number) [required] The local port number to expose through pipenet.
 - `host` (string) URL for the upstream proxy server. Defaults to `https://pipenet.dev`.
 - `subdomain` (string) Request a specific subdomain on the proxy server. **Note** You may not actually receive this name depending on availability.
-- `local_host` (string) Proxy to this hostname instead of `localhost`. This will also cause the `Host` header to be re-written to this value in proxied requests.
-- `local_https` (boolean) Enable tunneling to local HTTPS server.
-- `local_cert` (string) Path to certificate PEM file for local HTTPS server.
-- `local_key` (string) Path to certificate key file for local HTTPS server.
-- `local_ca` (string) Path to certificate authority file for self-signed certificates.
-- `allow_invalid_cert` (boolean) Disable certificate checks for your local HTTPS server (ignore cert/key/ca options).
+- `localHost` (string) Proxy to this hostname instead of `localhost`. This will also cause the `Host` header to be re-written to this value in proxied requests.
+- `localHttps` (boolean) Enable tunneling to local HTTPS server.
+- `localCert` (string) Path to certificate PEM file for local HTTPS server.
+- `localKey` (string) Path to certificate key file for local HTTPS server.
+- `localCa` (string) Path to certificate authority file for self-signed certificates.
+- `allowInvalidCert` (boolean) Disable certificate checks for your local HTTPS server (ignore cert/key/ca options).
 
 Refer to [tls.createSecureContext](https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options) for details on the certificate options.
 
@@ -98,7 +98,7 @@ const server = createServer({
   domain: 'tunnel.example.com',  // Optional: custom domain
   secure: false,                  // Optional: require HTTPS
   landing: 'https://pipenet.dev', // Optional: landing page URL
-  max_tcp_sockets: 10,            // Optional: max sockets per client
+  maxTcpSockets: 10,            // Optional: max sockets per client
 });
 
 server.listen(3000, () => {
@@ -111,7 +111,7 @@ server.listen(3000, () => {
 - `domain` (string) Custom domain for the tunnel server
 - `secure` (boolean) Require HTTPS connections
 - `landing` (string) URL to redirect root requests to
-- `max_tcp_sockets` (number) Maximum number of TCP sockets per client (default: 10)
+- `maxTcpSockets` (number) Maximum number of TCP sockets per client (default: 10)
 
 ### Server API Endpoints
 
@@ -121,7 +121,7 @@ server.listen(3000, () => {
 
 ## Acknowledgments
 
-pipenet is based on [localtunnel](https://github.com/localtunnel/localtunnel), an open-source project by [@defunctzombie](https://github.com/defunctzombie). We are grateful for the foundation it provided.
+pipenet is based on [localtunnel](https://github.com/localtunnel/localtunnel).
 
 Development of pipenet is sponsored by [glama.ai](https://glama.ai).
 

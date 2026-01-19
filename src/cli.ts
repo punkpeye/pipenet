@@ -40,14 +40,14 @@ async function runClient(opts: ClientOptions) {
   }
 
   const tunnel = await pipenet({
-    allow_invalid_cert: opts['allow-invalid-cert'],
+    allowInvalidCert: opts['allow-invalid-cert'],
     headers,
     host: opts.host,
-    local_ca: opts['local-ca'],
-    local_cert: opts['local-cert'],
-    local_host: opts['local-host'],
-    local_https: opts['local-https'],
-    local_key: opts['local-key'],
+    localCa: opts['local-ca'],
+    localCert: opts['local-cert'],
+    localHost: opts['local-host'],
+    localHttps: opts['local-https'],
+    localKey: opts['local-key'],
     port: opts.port,
     subdomain: opts.subdomain,
   });
@@ -78,7 +78,7 @@ function runServer(opts: ServerOptions) {
   const server = createServer({
     domain: opts.domain,
     landing: opts.landing,
-    max_tcp_sockets: opts['max-sockets'],
+    maxTcpSockets: opts['max-sockets'],
     secure: opts.secure,
   });
 

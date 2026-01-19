@@ -64,7 +64,7 @@ it('request specific domain', async () => {
 
 describe('--local-host localhost', () => {
   it('override Host header with local-host', async () => {
-    const tunnel = await pipenet(fakePort, { host, local_host: 'localhost' });
+    const tunnel = await pipenet(fakePort, { host, localHost: 'localhost' });
     expect(tunnel.url).toMatch(/^https?:\/\/[a-z0-9-]+\.localhost:\d+$/);
 
     const response = await axios.get(`${tunnel.url}/`);
@@ -75,7 +75,7 @@ describe('--local-host localhost', () => {
 
 describe('--local-host 127.0.0.1', () => {
   it('override Host header with local-host', async () => {
-    const tunnel = await pipenet(fakePort, { host, local_host: '127.0.0.1' });
+    const tunnel = await pipenet(fakePort, { host, localHost: '127.0.0.1' });
     expect(tunnel.url).toMatch(/^https?:\/\/[a-z0-9-]+\.localhost:\d+$/);
 
     const response = await axios.get(`${tunnel.url}/`);

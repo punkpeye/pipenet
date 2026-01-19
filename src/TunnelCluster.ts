@@ -9,19 +9,19 @@ import { HeaderHostTransformer } from './HeaderHostTransformer.js';
 const log = debug('pipenet:client');
 
 export interface TunnelClusterOptions {
-  allow_invalid_cert?: boolean;
-  cached_url?: string;
-  local_ca?: string;
-  local_cert?: string;
-  local_host?: string;
-  local_https?: boolean;
-  local_key?: string;
-  local_port?: number;
-  max_conn?: number;
+  allowInvalidCert?: boolean;
+  cachedUrl?: string;
+  localCa?: string;
+  localCert?: string;
+  localHost?: string;
+  localHttps?: boolean;
+  localKey?: string;
+  localPort?: number;
+  maxConn?: number;
   name?: string;
-  remote_host?: string;
-  remote_ip?: string;
-  remote_port?: number;
+  remoteHost?: string;
+  remoteIp?: string;
+  remotePort?: number;
   url?: string;
 }
 
@@ -41,12 +41,12 @@ export class TunnelCluster extends EventEmitter {
   open(): void {
     const opt = this.opts;
 
-    const remoteHostOrIp = opt.remote_ip || opt.remote_host;
-    const remotePort = opt.remote_port;
-    const localHost = opt.local_host || 'localhost';
-    const localPort = opt.local_port;
-    const localProtocol = opt.local_https ? 'https' : 'http';
-    const allowInvalidCert = opt.allow_invalid_cert;
+    const remoteHostOrIp = opt.remoteIp || opt.remoteHost;
+    const remotePort = opt.remotePort;
+    const localHost = opt.localHost || 'localhost';
+    const localPort = opt.localPort;
+    const localProtocol = opt.localHttps ? 'https' : 'http';
+    const allowInvalidCert = opt.allowInvalidCert;
 
     log(
       'establishing tunnel %s://%s:%s <> %s:%s',
@@ -97,12 +97,12 @@ export class TunnelCluster extends EventEmitter {
         allowInvalidCert
           ? { rejectUnauthorized: false }
           : {
-              ca: opt.local_ca ? [fs.readFileSync(opt.local_ca)] : undefined,
-              cert: fs.readFileSync(opt.local_cert!),
-              key: fs.readFileSync(opt.local_key!),
+              ca: opt.localCa ? [fs.readFileSync(opt.localCa)] : undefined,
+              cert: fs.readFileSync(opt.localCert!),
+              key: fs.readFileSync(opt.localKey!),
             };
 
-      const local = opt.local_https
+      const local = opt.localHttps
         ? tls.connect({ host: localHost, port: localPort!, ...getLocalCertOpts() })
         : net.connect({ host: localHost, port: localPort! });
 
@@ -134,9 +134,9 @@ export class TunnelCluster extends EventEmitter {
 
         let stream: NodeJS.ReadableStream = remote;
 
-        if (opt.local_host) {
-          log('transform Host header to %s', opt.local_host);
-          stream = remote.pipe(new HeaderHostTransformer({ host: opt.local_host }));
+        if (opt.localHost) {
+          log('transform Host header to %s', opt.localHost);
+          stream = remote.pipe(new HeaderHostTransformer({ host: opt.localHost }));
         }
 
         stream.pipe(local).pipe(remote);

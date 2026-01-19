@@ -5,12 +5,12 @@ import { Client } from './Client.js';
 import { TunnelAgent } from './TunnelAgent.js';
 
 export interface ClientManagerOptions {
-  max_tcp_sockets?: number;
+  maxTcpSockets?: number;
 }
 
 export interface NewClientInfo {
   id: string;
-  max_conn_count?: number;
+  maxConnCount?: number;
   port: number;
 }
 
@@ -43,7 +43,7 @@ export class ClientManager {
       id = hri.random();
     }
 
-    const maxSockets = this.opt.max_tcp_sockets;
+    const maxSockets = this.opt.maxTcpSockets;
     const agent = new TunnelAgent({
       clientId: id,
       maxTcpSockets: 10,
@@ -62,7 +62,7 @@ export class ClientManager {
       ++this.stats.tunnels;
       return {
         id: id,
-        max_conn_count: maxSockets,
+        maxConnCount: maxSockets,
         port: info.port,
       };
     } catch (err) {
