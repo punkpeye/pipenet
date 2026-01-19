@@ -1,0 +1,114 @@
+# pipenet
+
+pipenet exposes your localhost to the world for easy testing and sharing! No need to mess with DNS or deploy just to have others test out your changes.
+
+## Installation
+
+```bash
+npm install pipenet
+# or
+pnpm add pipenet
+```
+
+## API
+
+The pipenet client is also usable through an API (for test integration, automation, etc)
+
+### pipenet(port [,options][,callback])
+
+Creates a new pipenet tunnel to the specified local `port`. Will return a Promise that resolves once you have been assigned a public tunnel url. `options` can be used to request a specific `subdomain`. A `callback` function can be passed, in which case it won't return a Promise. This exists for backwards compatibility with the old Node-style callback API. You may also pass a single options object with `port` as a property.
+
+```js
+import pipenet from 'pipenet';
+
+const tunnel = await pipenet({ port: 3000 });
+
+// the assigned public url for your tunnel
+// i.e. https://abcdefgjhij.pipenet.me
+tunnel.url;
+
+tunnel.on('close', () => {
+  // tunnels are closed
+});
+```
+
+#### options
+
+- `port` (number) [required] The local port number to expose through pipenet.
+- `subdomain` (string) Request a specific subdomain on the proxy server. **Note** You may not actually receive this name depending on availability.
+- `host` (string) URL for the upstream proxy server. Defaults to `https://pipenet.me`.
+- `local_host` (string) Proxy to this hostname instead of `localhost`. This will also cause the `Host` header to be re-written to this value in proxied requests.
+- `local_https` (boolean) Enable tunneling to local HTTPS server.
+- `local_cert` (string) Path to certificate PEM file for local HTTPS server.
+- `local_key` (string) Path to certificate key file for local HTTPS server.
+- `local_ca` (string) Path to certificate authority file for self-signed certificates.
+- `allow_invalid_cert` (boolean) Disable certificate checks for your local HTTPS server (ignore cert/key/ca options).
+
+Refer to [tls.createSecureContext](https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options) for details on the certificate options.
+
+### Tunnel
+
+The `tunnel` instance returned to your callback emits the following events
+
+| event   | args | description                                                                          |
+| ------- | ---- | ------------------------------------------------------------------------------------ |
+| request | info | fires when a request is processed by the tunnel, contains _method_ and _path_ fields |
+| error   | err  | fires when an error happens on the tunnel                                            |
+| close   |      | fires when the tunnel has closed                                                     |
+
+The `tunnel` instance has the following methods
+
+| method | args | description      |
+| ------ | ---- | ---------------- |
+| close  |      | close the tunnel |
+
+## Server
+
+This package includes both the client and server components. You can run your own pipenet server.
+
+### Running the Server
+
+```bash
+# Using the CLI
+npx pipenet-server --port 3000
+
+# Or programmatically
+```
+
+```js
+import { createServer } from 'pipenet/server';
+
+const server = createServer({
+  domain: 'tunnel.example.com',  // Optional: custom domain
+  secure: false,                  // Optional: require HTTPS
+  landing: 'https://example.com', // Optional: landing page URL
+  max_tcp_sockets: 10,            // Optional: max sockets per client
+});
+
+server.listen(3000, () => {
+  console.log('pipenet server listening on port 3000');
+});
+```
+
+### Server Options
+
+- `domain` (string) Custom domain for the tunnel server
+- `secure` (boolean) Require HTTPS connections
+- `landing` (string) URL to redirect root requests to
+- `max_tcp_sockets` (number) Maximum number of TCP sockets per client (default: 10)
+
+### Server API Endpoints
+
+- `GET /api/status` - Server status and tunnel count
+- `GET /api/tunnels/:id/status` - Status of a specific tunnel
+- `GET /:id` - Request a new tunnel with the specified ID
+
+## Acknowledgments
+
+pipenet is based on [localtunnel](https://github.com/localtunnel/localtunnel), an open-source project by [@defunctzombie](https://github.com/defunctzombie). We are grateful for the foundation it provided.
+
+Development of pipenet is sponsored by [glama.ai](https://glama.ai).
+
+## License
+
+MIT
