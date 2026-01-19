@@ -19,6 +19,7 @@
     "type": "git",
     "url": "https://github.com/punkpeye/pipenet.git"
   },
+  "author": "Frank Fiegel <frank@glama.ai>",
   "bin": {
     "pipenet": "./dist/cli.js"
   },
