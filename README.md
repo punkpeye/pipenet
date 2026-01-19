@@ -172,6 +172,25 @@ pipenet was developed by [glama.ai](https://glama.ai) to enable local [Model Con
 
 This capability is now integrated into [mcp-proxy](https://github.com/punkpeye/mcp-proxy).
 
+## pipenet vs localtunnel
+
+pipenet is a modernized fork of [localtunnel](https://github.com/localtunnel/localtunnel) with several improvements:
+
+| Feature | pipenet | localtunnel |
+| ------- | ------- | ----------- |
+| Cloud deployment support | ✅ Single-port mode via `--tunnel-port` | ❌ Requires random ports |
+| Multiple domains | ✅ `--domain` can be specified multiple times | ❌ Single domain only |
+| TypeScript | ✅ Written in TypeScript with full type definitions | ❌ JavaScript only |
+| ESM support | ✅ Native ES modules | ❌ CommonJS only |
+| Active maintenance | ✅ Actively maintained | ⚠️ Limited maintenance |
+| WebSocket support | ✅ Full WebSocket proxying | ✅ Full WebSocket proxying |
+
+### Key Differences
+
+**Cloud Deployment Support**: localtunnel creates a random TCP port for each tunnel client, which doesn't work in containerized environments like Docker, fly.io, or Kubernetes where only specific ports are exposed. pipenet solves this with the `--tunnel-port` option, enabling all clients to connect through a single shared port.
+
+**Modern JavaScript**: pipenet uses ES modules and is written in TypeScript, providing better IDE support, type safety, and compatibility with modern JavaScript tooling.
+
 ## Acknowledgments
 
 pipenet is based on [localtunnel](https://github.com/localtunnel/localtunnel).
