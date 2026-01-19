@@ -125,6 +125,12 @@ server.listen(3000, () => {
 - `GET /api/tunnels/:id/status` - Status of a specific tunnel
 - `GET /:id` - Request a new tunnel with the specified ID
 
+## Why pipenet?
+
+pipenet was developed by [glama.ai](https://glama.ai) to enable local [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers to connect with remote AI clients (e.g., to give AI assistants access to your local file system).
+
+This capability is now integrated into [mcp-proxy](https://github.com/punkpeye/mcp-proxy).
+
 ## Acknowledgments
 
 pipenet is based on [localtunnel](https://github.com/localtunnel/localtunnel).
