@@ -19,7 +19,7 @@ export interface ServerOptions {
 export function createServer(opt: ServerOptions = {}): http.Server {
   const validHosts = opt.domain ? [opt.domain] : undefined;
   const myTldjs = tldjs.fromUserSettings({ validHosts });
-  const landingPage = opt.landing || 'https://pipenet.glama.ai/';
+  const landingPage = opt.landing || 'https://pipenet.dev/';
 
   function GetClientIdFromHostname(hostname: string): string | null {
     return myTldjs.getSubdomain(hostname);

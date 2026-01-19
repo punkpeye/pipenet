@@ -10,6 +10,19 @@ npm install pipenet
 pnpm add pipenet
 ```
 
+## CLI Usage
+
+```bash
+# Expose local port 3000 to the internet
+npx pipenet --port 3000
+
+# Request a specific subdomain
+npx pipenet --port 3000 --subdomain myapp
+
+# Use a custom tunnel server
+npx pipenet --port 3000 --host https://your-tunnel-server.com
+```
+
 ## API
 
 The pipenet client is also usable through an API (for test integration, automation, etc)
@@ -73,7 +86,7 @@ This package includes both the client and server components. You can run your ow
 
 ```bash
 # Using the CLI
-npx pipenet-server --port 3000
+npx pipenet server --port 3000
 
 # Or programmatically
 ```
