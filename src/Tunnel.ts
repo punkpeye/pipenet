@@ -26,6 +26,7 @@ interface ServerResponse {
   maxConnCount?: number;
   message?: string;
   port: number;
+  sharedTunnel?: boolean;
   url: string;
 }
 
@@ -43,6 +44,7 @@ interface TunnelInfo extends TunnelClusterOptions {
   remoteHost: string;
   remoteIp: string;
   remotePort: number;
+  sharedTunnel?: boolean;
   url: string;
 }
 
@@ -141,7 +143,7 @@ export class Tunnel extends EventEmitter {
   }
 
   private _getInfo(body: ServerResponse): TunnelInfo {
-    const { cachedUrl, id, ip, maxConnCount, port, url } = body;
+    const { cachedUrl, id, ip, maxConnCount, port, sharedTunnel, url } = body;
     const { host, localHost, port: localPort } = this.opts;
     const { allowInvalidCert, localCa, localCert, localHttps, localKey } = this.opts;
 
@@ -159,6 +161,7 @@ export class Tunnel extends EventEmitter {
       remoteHost: new URL(host!).hostname,
       remoteIp: ip,
       remotePort: port,
+      sharedTunnel,
       url,
     };
   }

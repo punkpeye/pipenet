@@ -6,6 +6,7 @@ import Router from 'koa-router';
 import tldjs from 'tldjs';
 
 import { ClientManager } from './ClientManager.js';
+import { TunnelServer } from './TunnelServer.js';
 
 const log = debug('pipenet:server');
 
@@ -14,9 +15,14 @@ export interface ServerOptions {
   landing?: string;
   maxTcpSockets?: number;
   secure?: boolean;
+  tunnelPort?: number;
 }
 
-export function createServer(opt: ServerOptions = {}): http.Server {
+export interface PipenetServer extends http.Server {
+  tunnelServer?: TunnelServer;
+}
+
+export function createServer(opt: ServerOptions = {}): PipenetServer {
   const validHosts = opt.domains && opt.domains.length > 0 ? opt.domains : undefined;
   const myTldjs = tldjs.fromUserSettings({ validHosts });
   const landingPage = opt.landing || 'https://pipenet.dev/';
@@ -25,9 +31,16 @@ export function createServer(opt: ServerOptions = {}): http.Server {
     return myTldjs.getSubdomain(hostname);
   }
 
-  const manager = new ClientManager(opt);
+  // Create shared tunnel server if tunnelPort is specified
+  const tunnelServer = opt.tunnelPort ? new TunnelServer() : undefined;
+
+  const manager = new ClientManager({
+    ...opt,
+    tunnelServer,
+  });
 
   const schema = opt.secure ? 'https' : 'http';
+  const tunnelPort = opt.tunnelPort;
 
   const app = new Koa();
   const router = new Router();
@@ -71,6 +84,18 @@ export function createServer(opt: ServerOptions = {}): http.Server {
   app.use(router.routes());
   app.use(router.allowedMethods());
 
+  // Helper to build response with tunnel port if configured
+  const buildResponse = (info: { id: string; port: number; maxConnCount?: number }, host: string) => {
+    const url = schema + '://' + info.id + '.' + host;
+    const response: Record<string, unknown> = { ...info, url };
+    // If using shared tunnel server, override port and add sharedTunnel flag
+    if (tunnelPort) {
+      response.port = tunnelPort;
+      response.sharedTunnel = true;
+    }
+    return response;
+  };
+
   app.use(async (ctx, next) => {
     const path = ctx.request.path;
 
@@ -85,8 +110,7 @@ export function createServer(opt: ServerOptions = {}): http.Server {
       log('making new client with id %s', reqId);
       const info = await manager.newClient(reqId);
 
-      const url = schema + '://' + info.id + '.' + ctx.request.host;
-      ctx.body = { ...info, url };
+      ctx.body = buildResponse(info, ctx.request.host);
       return;
     }
 
@@ -113,11 +137,11 @@ export function createServer(opt: ServerOptions = {}): http.Server {
     log('making new client with id %s', reqId);
     const info = await manager.newClient(reqId);
 
-    const url = schema + '://' + info.id + '.' + ctx.request.host;
-    ctx.body = { ...info, url };
+    ctx.body = buildResponse(info, ctx.request.host);
   });
 
-  const server = http.createServer();
+  const server: PipenetServer = http.createServer();
+  server.tunnelServer = tunnelServer;
 
   const appCallback = app.callback();
 

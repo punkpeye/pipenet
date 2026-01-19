@@ -22,6 +22,7 @@ export interface TunnelClusterOptions {
   remoteHost?: string;
   remoteIp?: string;
   remotePort?: number;
+  sharedTunnel?: boolean;
   url?: string;
 }
 
@@ -158,6 +159,11 @@ export class TunnelCluster extends EventEmitter {
     });
 
     remote.once('connect', () => {
+      // Send client ID as the first message for shared tunnel server mode
+      if (opt.sharedTunnel && opt.name) {
+        log('sending client ID for shared tunnel: %s', opt.name);
+        remote.write(opt.name + '\n');
+      }
       this.emit('open', remote);
       connLocal();
     });

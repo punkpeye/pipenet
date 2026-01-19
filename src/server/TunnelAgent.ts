@@ -3,6 +3,8 @@ import { Agent, ClientRequestArgs } from 'http';
 import net from 'net';
 import { Duplex } from 'stream';
 
+import type { TunnelServer } from './TunnelServer.js';
+
 const DEFAULT_MAX_SOCKETS = 10;
 
 export interface TunnelAgentListenInfo {
@@ -12,6 +14,7 @@ export interface TunnelAgentListenInfo {
 export interface TunnelAgentOptions {
   clientId?: string;
   maxTcpSockets?: number;
+  tunnelServer?: TunnelServer;
 }
 
 export interface TunnelAgentStats {
@@ -23,21 +26,28 @@ type CreateConnectionCallback = (err: Error | null, socket: Duplex) => void;
 export class TunnelAgent extends Agent {
   public started: boolean;
   private availableSockets: net.Socket[];
+  private clientId?: string;
   private closed: boolean;
   private connectedSockets: number;
   private log: debug.Debugger;
   private maxTcpSockets: number;
-  private server: net.Server;
+  private server?: net.Server;
+  private tunnelServer?: TunnelServer;
   private waitingCreateConn: CreateConnectionCallback[];
 
   constructor(options: TunnelAgentOptions = {}) {
     super({ keepAlive: true, maxFreeSockets: 1 });
     this.availableSockets = [];
     this.waitingCreateConn = [];
+    this.clientId = options.clientId;
     this.log = debug(`lt:TunnelAgent[${options.clientId}]`);
     this.connectedSockets = 0;
     this.maxTcpSockets = options.maxTcpSockets || DEFAULT_MAX_SOCKETS;
-    this.server = net.createServer();
+    this.tunnelServer = options.tunnelServer;
+    // Only create a local server if no shared tunnel server is provided
+    if (!this.tunnelServer) {
+      this.server = net.createServer();
+    }
     this.started = false;
     this.closed = false;
   }
@@ -61,13 +71,34 @@ export class TunnelAgent extends Agent {
   }
 
   destroy(): void {
-    this.server.close();
+    if (this.tunnelServer && this.clientId) {
+      this.tunnelServer.unregisterHandler(this.clientId);
+    }
+    if (this.server) {
+      this.server.close();
+    }
     super.destroy();
   }
 
   listen(): Promise<TunnelAgentListenInfo> {
     if (this.started) throw new Error('already started');
     this.started = true;
+
+    // If using shared tunnel server, register handler and return port 0
+    // (the actual port is the tunnel server's port, handled externally)
+    if (this.tunnelServer && this.clientId) {
+      this.tunnelServer.registerHandler(this.clientId, (socket) => {
+        this._onConnection(socket);
+      });
+      this.log('registered with shared tunnel server');
+      // Return port 0 to indicate shared tunnel server mode
+      return Promise.resolve({ port: 0 });
+    }
+
+    // Legacy mode: create our own TCP server
+    if (!this.server) {
+      throw new Error('No server available');
+    }
 
     this.server.on('close', this._onClose.bind(this));
     this.server.on('connection', this._onConnection.bind(this));
@@ -77,8 +108,8 @@ export class TunnelAgent extends Agent {
     });
 
     return new Promise((resolve) => {
-      this.server.listen(() => {
-        const addr = this.server.address() as net.AddressInfo;
+      this.server!.listen(() => {
+        const addr = this.server!.address() as net.AddressInfo;
         this.log('tcp server listening on port: %d', addr.port);
         resolve({ port: addr.port });
       });

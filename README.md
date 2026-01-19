@@ -94,6 +94,9 @@ npx pipenet server --port 3000 --domain tunnel.example.com
 # With multiple domains
 npx pipenet server --port 3000 --domain tunnel.example.com --domain tunnel.example.org
 
+# For cloud deployments (single tunnel port mode)
+npx pipenet server --port 3000 --tunnel-port 3001 --domain tunnel.example.com
+
 # Or programmatically
 ```
 
@@ -105,7 +108,13 @@ const server = createServer({
   secure: false,                     // Optional: require HTTPS
   landing: 'https://pipenet.dev',    // Optional: landing page URL
   maxTcpSockets: 10,                 // Optional: max sockets per client
+  tunnelPort: 3001,                  // Optional: shared tunnel port for cloud deployments
 });
+
+// Start tunnel server if using shared tunnel port
+if (server.tunnelServer) {
+  await server.tunnelServer.listen(3001);
+}
 
 server.listen(3000, () => {
   console.log('pipenet server listening on port 3000');
@@ -118,12 +127,44 @@ server.listen(3000, () => {
 - `secure` (boolean) Require HTTPS connections
 - `landing` (string) URL to redirect root requests to
 - `maxTcpSockets` (number) Maximum number of TCP sockets per client (default: 10)
+- `tunnelPort` (number) Shared tunnel port for cloud deployments (enables single-port mode)
 
 ### Server API Endpoints
 
 - `GET /api/status` - Server status and tunnel count
 - `GET /api/tunnels/:id/status` - Status of a specific tunnel
 - `GET /:id` - Request a new tunnel with the specified ID
+
+### Cloud Deployments
+
+When deploying pipenet server to cloud platforms like fly.io, Docker, or Kubernetes, you typically can only expose a limited number of ports. By default, pipenet creates a random TCP port for each tunnel client, which doesn't work well in these environments.
+
+Use the `--tunnel-port` option to enable single-port mode, where all tunnel clients connect to a single shared port:
+
+```bash
+# fly.io example
+pipenet server --port 8080 --tunnel-port 8081 --domain tunnel.example.com --secure
+```
+
+Then expose both ports in your deployment configuration. For fly.io:
+
+```toml
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+  [[services.ports]]
+    port = 443
+    handlers = ["http", "tls"]
+
+[[services]]
+  internal_port = 8081
+  protocol = "tcp"
+  [[services.ports]]
+    port = 8081
+```
 
 ## Why pipenet?
 

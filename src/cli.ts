@@ -27,6 +27,7 @@ interface ServerOptions {
   'max-sockets'?: number;
   port: number;
   secure?: boolean;
+  'tunnel-port'?: number;
 }
 
 async function runClient(opts: ClientOptions) {
@@ -75,13 +76,20 @@ async function runClient(opts: ClientOptions) {
   });
 }
 
-function runServer(opts: ServerOptions) {
+async function runServer(opts: ServerOptions) {
   const server = createServer({
     domains: opts.domain,
     landing: opts.landing,
     maxTcpSockets: opts['max-sockets'],
     secure: opts.secure,
+    tunnelPort: opts['tunnel-port'],
   });
+
+  // Start the tunnel server if configured
+  if (server.tunnelServer && opts['tunnel-port']) {
+    await server.tunnelServer.listen(opts['tunnel-port'], opts.address);
+    console.log('tunnel server listening on port %d', opts['tunnel-port']);
+  }
 
   const listenCallback = () => {
     console.log('pipenet server listening on port %d', opts.port);
@@ -101,6 +109,9 @@ function runServer(opts: ServerOptions) {
 
   process.on('SIGINT', () => {
     console.log('shutting down server...');
+    if (server.tunnelServer) {
+      server.tunnelServer.close();
+    }
     server.close(() => {
       process.exit(0);
     });
@@ -209,6 +220,11 @@ yargs(hideBin(process.argv))
         .option('max-sockets', {
           default: 10,
           describe: 'Maximum number of TCP sockets per client',
+          type: 'number',
+        })
+        .option('tunnel-port', {
+          alias: 't',
+          describe: 'Port for tunnel connections (enables single-port mode for cloud deployments)',
           type: 'number',
         });
     },

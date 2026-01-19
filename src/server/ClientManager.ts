@@ -3,9 +3,11 @@ import { hri } from 'human-readable-ids';
 
 import { Client } from './Client.js';
 import { TunnelAgent } from './TunnelAgent.js';
+import type { TunnelServer } from './TunnelServer.js';
 
 export interface ClientManagerOptions {
   maxTcpSockets?: number;
+  tunnelServer?: TunnelServer;
 }
 
 export interface NewClientInfo {
@@ -47,6 +49,7 @@ export class ClientManager {
     const agent = new TunnelAgent({
       clientId: id,
       maxTcpSockets: 10,
+      tunnelServer: this.opt.tunnelServer,
     });
 
     const client = new Client({ agent, id });
