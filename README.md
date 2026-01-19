@@ -1,6 +1,17 @@
 # pipenet
 
-Expose your local server to the public internet instantly
+Expose your local server to the public internet instantly.
+
+## Supported Protocols
+
+pipenet tunnels any HTTP-based traffic to your local server:
+
+| Protocol | Supported | Notes |
+| -------- | --------- | ----- |
+| HTTP/HTTPS | ✅ | Standard request/response |
+| WebSocket | ✅ | Full duplex communication via HTTP upgrade |
+| SSE (Server-Sent Events) | ✅ | Long-lived HTTP connections |
+| HTTP Streaming | ✅ | Chunked transfer encoding |
 
 ## Installation
 
