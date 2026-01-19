@@ -89,10 +89,10 @@ This package includes both the client and server components. You can run your ow
 npx pipenet server --port 3000
 
 # With a custom domain
-npx pipenet server --port 3000 --domains tunnel.example.com
+npx pipenet server --port 3000 --domain tunnel.example.com
 
 # With multiple domains
-npx pipenet server --port 3000 --domains tunnel.example.com --domains tunnel.example.org
+npx pipenet server --port 3000 --domain tunnel.example.com --domain tunnel.example.org
 
 # Or programmatically
 ```
