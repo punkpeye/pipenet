@@ -20,7 +20,7 @@ describe('Server', () => {
 
   it('should support custom base domains', async () => {
     const server = createServer({
-      domain: 'domain.example.com',
+      domains: ['domain.example.com'],
     });
 
     const res = await request(server).get('/');
@@ -36,7 +36,7 @@ describe('Server', () => {
   it('should upgrade websocket requests', async () => {
     const hostname = 'websocket-test';
     const server = createServer({
-      domain: 'example.com',
+      domains: ['example.com'],
     });
     await new Promise<void>(resolve => server.listen(resolve));
 

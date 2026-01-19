@@ -29,7 +29,7 @@ describe('pipenet', () => {
     });
 
     // Start a local tunnel server for testing
-    tunnelServer = createServer({ domain: 'localhost' });
+    tunnelServer = createServer({ domains: ['localhost'] });
     await new Promise<void>((resolve) => {
       tunnelServer.listen(() => {
         const addr = tunnelServer.address() as AddressInfo;
