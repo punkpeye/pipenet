@@ -1,6 +1,7 @@
 import axios from 'axios';
 import debug from 'debug';
 import { EventEmitter } from 'events';
+import net from 'net';
 
 import { TunnelCluster, TunnelClusterOptions } from './TunnelCluster.js';
 
@@ -104,8 +105,9 @@ export class Tunnel extends EventEmitter {
     });
 
     let tunnelCount = 0;
+    const tunnelHandlers = new Map<net.Socket, () => void>();
 
-    this.tunnelCluster.on('open', (tunnel: { destroy: () => void; once: (event: string, handler: () => void) => void }) => {
+    this.tunnelCluster.on('open', (tunnel: net.Socket) => {
       tunnelCount++;
       log('tunnel open [total: %d]', tunnelCount);
 
@@ -118,15 +120,27 @@ export class Tunnel extends EventEmitter {
         return;
       }
 
+      tunnelHandlers.set(tunnel, closeHandler);
       this.once('close', closeHandler);
       tunnel.once('close', () => {
+        tunnelHandlers.delete(tunnel);
         this.removeListener('close', closeHandler);
       });
     });
 
-    this.tunnelCluster.on('dead', () => {
+    this.tunnelCluster.on('dead', (deadSocket?: net.Socket) => {
       tunnelCount--;
       log('tunnel dead [total: %d]', tunnelCount);
+
+      // Eagerly remove the close handler for the dead tunnel.
+      // Without this, the handler lingers until the socket's async
+      // 'close' event fires, causing listener accumulation.
+      if (deadSocket && tunnelHandlers.has(deadSocket)) {
+        const handler = tunnelHandlers.get(deadSocket)!;
+        tunnelHandlers.delete(deadSocket);
+        this.removeListener('close', handler);
+      }
+
       if (this.closed) {
         return;
       }
