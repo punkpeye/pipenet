@@ -105,7 +105,7 @@ it('does not leak close listeners across tunnel reconnections', async () => {
 
   // Force rapid reconnection cycles by emitting open→dead on the cluster.
   for (let i = 0; i < 20; i++) {
-    const fakeSocket = new EventEmitter() as any;
+    const fakeSocket = new EventEmitter() as { destroy: () => void } & EventEmitter;
     fakeSocket.destroy = () => {};
     cluster.emit('open', fakeSocket);
     cluster.emit('dead', fakeSocket);
