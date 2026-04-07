@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import debug from 'debug';
 import { EventEmitter } from 'events';
 
@@ -185,15 +185,13 @@ export class Tunnel extends EventEmitter {
         .then((res) => {
           const body = res.data;
           log('got tunnel information', res.data);
-          if (res.status !== 200) {
-            const err = new Error(
-              body?.message || 'pipenet server returned an error, please try again'
-            );
-            return cb(err);
-          }
           cb(null, getInfo(body));
         })
-        .catch((err: Error) => {
+        .catch((err: AxiosError<ServerResponse>) => {
+          if (err.response && err.response.status >= 400 && err.response.status < 500) {
+            const message = err.response.data?.message || err.message;
+            return cb(new Error(message));
+          }
           log(`tunnel server offline: ${err.message}, retry 1s`);
           setTimeout(getUrl, 1000);
         });
