@@ -85,6 +85,13 @@ describe('--local-host 127.0.0.1', () => {
   });
 });
 
+describe('error handling', () => {
+  it('should include server error message', async () => {
+    const result = pipenet(fakePort, { host, subdomain: 'no' });
+    await expect(result).rejects.toThrow('Invalid subdomain');
+  });
+});
+
 describe('custom headers', () => {
   it('should accept custom headers option', async () => {
     const customHeaders = {
