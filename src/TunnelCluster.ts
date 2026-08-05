@@ -148,7 +148,7 @@ export class TunnelCluster extends EventEmitter {
       });
     };
 
-    remote.on('data', (data: Buffer) => {
+    remote.once('data', (data: Buffer) => {
       const match = data.toString().match(/^(\w+) (\S+)/);
       if (match) {
         this.emit('request', {
