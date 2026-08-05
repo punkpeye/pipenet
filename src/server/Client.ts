@@ -60,6 +60,7 @@ export class Client extends EventEmitter {
       agent: this.agent as unknown as http.Agent,
       headers: req.headers,
       method: req.method,
+      timeout: 60000,
       path: req.url,
     };
 
@@ -67,6 +68,12 @@ export class Client extends EventEmitter {
       this.log('< %s', req.url);
       res.writeHead(clientRes.statusCode!, clientRes.headers);
       pump(clientRes, res);
+    });
+
+    clientReq.on('timeout', () => {
+      clientReq.destroy();
+      res.writeHead(504, { 'Content-Type': 'text/plain' });
+      res.end('Gateway Timeout');
     });
 
     clientReq.once('error', () => {

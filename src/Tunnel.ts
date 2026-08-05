@@ -187,6 +187,7 @@ export class Tunnel extends EventEmitter {
     const params = {
       headers: opt.headers || {},
       responseType: 'json' as const,
+      timeout: 30000,
     };
 
     const baseUri = `${opt.host}/`;
