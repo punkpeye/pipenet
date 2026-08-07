@@ -14,6 +14,13 @@ class DummyAgent extends http.Agent {
 }
 
 class DummySocket extends Duplex {
+  // `http.Agent` calls `socket.setTimeout()` on whatever `createConnection`
+  // returns once the request carries a timeout, so the double has to offer it
+  // like a real `net.Socket` does.
+  setTimeout() {
+    return this;
+  }
+
   _read() {
     this.push('HTTP/1.1 304 Not Modified\r\nX-Powered-By: dummy\r\n\r\n\r\n');
     this.push(null);
