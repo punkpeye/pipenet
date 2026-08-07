@@ -60,6 +60,7 @@ export class Client extends EventEmitter {
       agent: this.agent as unknown as http.Agent,
       headers: req.headers,
       method: req.method,
+      timeout: 60000,
       path: req.url,
     };
 
@@ -67,6 +68,21 @@ export class Client extends EventEmitter {
       this.log('< %s', req.url);
       res.writeHead(clientRes.statusCode!, clientRes.headers);
       pump(clientRes, res);
+    });
+
+    clientReq.on('timeout', () => {
+      clientReq.destroy();
+      // The socket timeout stays armed while the response streams, so this can
+      // fire after the upstream headers were already forwarded.
+      if (res.headersSent) {
+        // Writing a status now would throw ERR_HTTP_HEADERS_SENT, and ending
+        // cleanly would terminate the chunked body as if it were complete.
+        // Destroying signals a truncated transfer, which is what happened.
+        res.destroy();
+        return;
+      }
+      res.writeHead(504, { 'Content-Type': 'text/plain' });
+      res.end('Gateway Timeout');
     });
 
     clientReq.once('error', () => {
