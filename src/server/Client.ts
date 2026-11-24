@@ -3,7 +3,7 @@ import type { Duplex } from 'stream';
 import debug from 'debug';
 import { EventEmitter } from 'events';
 import http from 'http';
-import pump from 'pump';
+import { pipeline } from 'stream';
 
 import type { TunnelAgent } from './TunnelAgent.js';
 
@@ -67,7 +67,7 @@ export class Client extends EventEmitter {
     const clientReq = http.request(opt, (clientRes) => {
       this.log('< %s', req.url);
       res.writeHead(clientRes.statusCode!, clientRes.headers);
-      pump(clientRes, res);
+      pipeline(clientRes, res, () => {});
     });
 
     clientReq.on('timeout', () => {
@@ -89,7 +89,7 @@ export class Client extends EventEmitter {
       // TODO: if headers not sent - respond with gateway unavailable
     });
 
-    pump(req, clientReq);
+    pipeline(req, clientReq, () => {});
   }
 
   handleUpgrade(req: http.IncomingMessage, socket: Duplex) {
@@ -119,8 +119,8 @@ export class Client extends EventEmitter {
       arr.push('');
       arr.push('');
 
-      pump(conn, socket);
-      pump(socket, conn);
+      pipeline(conn, socket, () => {});
+      pipeline(socket, conn, () => {});
       conn.write(arr.join('\r\n'));
     });
   }
